@@ -374,9 +374,9 @@ Future<T> fetchDataFromPostRequest<T>({
   Function(dynamic) onError,
   bool isJsonRequest = true,
 }) async {
-  // print('getDataFromNetwork: url: ${BASE_API + urlSuffix}');
-  // print('getDataFromNetwork: header: $headerData');
-  // print('getDataFromNetwork: parameter: $parameters');
+  print('getDataFromNetwork: url: $url}');
+  print('getDataFromNetwork: header: $headerData');
+  print('getDataFromNetwork: parameter: $parameters');
 
   final responseString = await fetchRawDataFromPost(
     url: url,
@@ -387,6 +387,8 @@ Future<T> fetchDataFromPostRequest<T>({
     onError: onError,
     isJsonRequest: isJsonRequest,
   );
+
+  print('responseString: $responseString');
   if (isNotEmpty(responseString)) {
     final json = jsonDecode(responseString) as T;
     return json;

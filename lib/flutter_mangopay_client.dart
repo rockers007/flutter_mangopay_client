@@ -1,7 +1,3 @@
-library flutter_mangopay_client;
-
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'client.dart';
+export 'models/models.dart';
+export 'utils/validators.dart';

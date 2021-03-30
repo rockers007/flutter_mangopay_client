@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'mangopay_client.dart';
+import 'models/models.dart';
 import 'utils/common_utils.dart';
 import 'utils/resources.dart';
 import 'utils.dart';
@@ -13,7 +13,6 @@ enum MangoPayEnvironment {
 class MangopayClient {
   String clientID;
   String clientPassword;
-  String userID;
   String baseURL;
   String version;
   MangoPayEnvironment environment;
@@ -23,7 +22,6 @@ class MangopayClient {
   MangopayClient._({
     this.clientID = '',
     this.clientPassword = '',
-    this.userID = '',
     String url,
     this.environment = MangoPayEnvironment.SandBox,
     this.version = 'v2.01',
@@ -45,16 +43,13 @@ class MangopayClient {
   factory MangopayClient.getInstance({
     String clientID,
     String clientPassword,
-    String userID,
     String baseURL,
     MangoPayEnvironment environment = MangoPayEnvironment.SandBox,
     String version = 'v2.01',
   }) {
     if (_instance == null) {
       assert(
-          isNotEmpty(clientID) &&
-              isNotEmpty(clientPassword) &&
-              isNotEmpty(userID),
+          isNotEmpty(clientID) && isNotEmpty(clientPassword),
           'Mangopay client requires some parameters to create an instance '
           '\n please provide all the required parameters.'
           '\n Optional parameters: '
@@ -65,7 +60,6 @@ class MangopayClient {
       _instance = MangopayClient._(
         clientID: clientID,
         clientPassword: clientPassword,
-        userID: userID,
         url: baseURL,
         environment: environment,
         version: version,
@@ -93,7 +87,10 @@ class MangopayClient {
   }
 
   Future<List<MangopayCard>> getCards({String userId}) async {
-    final url = apiURL + getCardSuffix(userId ?? userID);
+    assert(isNotEmpty(userId),
+        'Mangopay client requires userId to fetch card details');
+
+    final url = apiURL + getCardSuffix(userId);
     final headers = getMangopayHeader(clientID, clientPassword);
 
     final json = await fetchDataFromGetRequest<List>(

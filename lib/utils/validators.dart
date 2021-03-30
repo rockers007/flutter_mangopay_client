@@ -1,4 +1,4 @@
-import '../mangopay_client.dart';
+import '../models/models.dart';
 
 class Validator {
   static String validateCardDataWithCard(MangopayCard cardData) {
