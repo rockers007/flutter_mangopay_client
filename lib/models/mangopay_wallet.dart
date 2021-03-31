@@ -1,21 +1,14 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mangopay_client.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
+import 'models.dart';
 
-part 'mango_pay_wallet.g.dart';
+part 'mangopay_wallet.g.dart';
 
-/*{
-    "Description": "GBP wallet",
-    "Owners": [ "103005702" ],
-    "Balance": { "Currency": "GBP", "Amount": 0 },
-    "Currency": "GBP",
-    "FundsType": "DEFAULT",
-    "Id": "103615963",
-    "Tag": "flutter_mangopay_client",
-    "CreationDate": 1615548840
-}*/
-
+/// This model class represents a mangopay wallet
+///
+/// Please refer to Mangopay documentation:
+/// https://docs.mangopay.com/endpoints/v2.01/wallets#e20_the-wallet-object
 @JsonSerializable(explicitToJson: true)
 class Wallet {
   @JsonKey(name: WalletTags.Description)

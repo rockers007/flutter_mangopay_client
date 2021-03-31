@@ -1,27 +1,22 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
-/*{
-        "ExpirationDate": "1020",
-        "Alias": "424242XXXXXX4242",
-        "CardType": "CB_VISA_MASTERCARD",
-        "CardProvider": "unknown",
-        "Country": "unknown",
-        "Product": "unknown",
-        "BankCode": "unknown",
-        "Active": true,
-        "Currency": "USD",
-        "Validity": "UNKNOWN",
-        "UserId": "85809529",
-        "Id": "86117367",
-        "Tag": null,
-        "CreationDate": 1597840258,
-        "Fingerprint": "f5de72ec2cff469ea9546ae5de9ff811"
-    }*/
+part 'mangopay_card.g.dart';
 
-part 'mango_pay_card.g.dart';
-
+/// The model class that represents a Card entity used in the transactions
+/// with mangopay gateway
+///
+/// Note: All the of the fields in this model might not be available
+/// always, they might have to be filled or set manually.
+///
+/// for example: [id] might not be available if the instance of card is made
+/// for the purpose of registration then id is only available after registration is
+/// done, so it has to be set manually after registration is complete.
+///
+/// Please refer to Mangopay documentation:
+/// https://docs.mangopay.com/endpoints/v2.01/cards#e181_the-card-object
+///
 @JsonSerializable(explicitToJson: true)
 class MangopayCard {
   @JsonKey(name: MangopayCardTags.ExpirationDate)
@@ -97,9 +92,13 @@ class MangopayCard {
   ///    YY = last two digits of year
   ///
   /// more information: https://docs.mangopay.com/guide/testing-payments
-  static MangopayCard testCard({String currency, String userID}) {
+  static MangopayCard testCard({
+    String currency,
+    String userID,
+    String tag = MANGOPAY_TAG,
+  }) {
     return MangopayCard(
-        tag: MANGO_PAY_TAG,
+        tag: tag,
         currency: currency,
         cardType: 'CB_VISA_MASTERCARD',
         cardNumber: '4970104100876588',
@@ -123,11 +122,12 @@ class MangopayCard {
     String expirationYear,
     String currency,
     String userID,
+    String tag = MANGOPAY_TAG,
   }) {
     return MangopayCard(
-        tag: MANGO_PAY_TAG,
+        tag: tag,
         currency: currency,
-        cardType: MANGO_PAY_CARD_TYPE,
+        cardType: MANGOPAY_VISA_MC_CARD_TYPE,
         cardNumber: cardNumber,
         cvx: cvv,
         userID: userID,

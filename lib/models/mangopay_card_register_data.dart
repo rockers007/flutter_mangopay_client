@@ -1,26 +1,23 @@
-/*{
-    "Id": "103507774",
-    "Tag": "flutter_mangopay_client",
-    "CreationDate": 1615455067,
-    "UserId": "85809529",
-    "AccessKey": "1X0m87dmM2LiwFgxPLBJ",
-    "PreregistrationData": "XBDYiG8w9PrylPS01KmupZVJm3laHBKHSlZGlmhCmp4p-zs-tlU6CGXlVx3voL2f9fwtF16NyLjSBH1cfT6SMg",
-    "RegistrationData": null,
-    "CardId": null,
-    "CardType": "CB_VISA_MASTERCARD",
-    "CardRegistrationURL": "https://homologation-webpayment.payline.com/webpayment/getToken",
-    "ResultCode": null,
-    "ResultMessage": null,
-    "Currency": "GBP",
-    "Status": "CREATED"
-} */
-
 import 'package:json_annotation/json_annotation.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
-part 'mango_pay_card_register_data.g.dart';
+part 'mangopay_card_register_data.g.dart';
 
+/// The model class that represents a collection of registration data
+/// used for card registration process.
+///
+/// Most of these fields are the supposed to be used in the intermediate process
+/// for card registration.
+///
+/// Note: None of these fields are to be used directly outside the mangopay
+/// communication except maybe [cardId] which also is available when card details
+/// are fetched from the mangopay api for a client.
+///
+/// Please refer to Mangopay documentation:
+///  - https://docs.mangopay.com/endpoints/v2.01/cards#e177_the-card-registration-object
+///  - https://docs.mangopay.com/endpoints/v2.01/cards#e178_create-a-card-registration
+///  - https://docs.mangopay.com/endpoints/v2.01/cards#e179_update-a-card-registration
 @JsonSerializable(explicitToJson: true)
 class MangopayRegisterCardData {
   @JsonKey(name: MangopayRegisterCardDataTags.Id)

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mangopay_client/utils.dart';
+import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
 
 /// This is a custom input field widget which is used
 /// to take input from the user on login page registration page.
@@ -289,13 +289,6 @@ class _FormInputFieldState extends State<FormInputField> {
         width: width,
         color: color ?? Colors.grey.shade700,
       ),
-      borderRadius: BorderRadius.circular(radius),
-    );
-  }
-
-  static BoxDecoration boxDecoration({Color color, double radius = 5.0}) {
-    return BoxDecoration(
-      color: color ?? Colors.white60,
       borderRadius: BorderRadius.circular(radius),
     );
   }

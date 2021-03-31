@@ -1,27 +1,13 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../utils.dart';
+import '../utils/utils.dart';
 
-part 'mango_pay_user.g.dart';
+part 'mangopay_user.g.dart';
 
-/* {
-        "PersonType": "NATURAL",
-        "Email": "aug_test@yopmail.com",
-        "KYCLevel": "LIGHT",
-        "Id": "85809440",
-        "Tag": null,
-        "CreationDate": 1597296764
-   } */
-
-/*{
-"FirstName": "Joe",
-"LastName": "Blogs",
-"Birthday": 1463496101,
-"Nationality": "GB",
-"CountryOfResidence": "FR",
-"Email": "support@mangopay.com"
-}*/
-
+/// This model class represents a mangopay user instance.
+///
+/// Please refer to Mangopay documentation:
+/// https://docs.mangopay.com/endpoints/v2.01/users#e253_the-user-object
 @JsonSerializable(explicitToJson: true)
 class MangopayUser {
   @JsonKey(name: UserTags.PersonType)

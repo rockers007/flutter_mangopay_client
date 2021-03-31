@@ -1,13 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_mangopay_client/utils.dart';
 
 import 'form_input_field.dart';
 
-const String CLIENT_ID = 'paulcrowdfunding';
-const String CLIENT_PASSWORD = 'P@ssw0rd';
+// const String CLIENT_ID = 'paulcrowdfunding';
+// const String CLIENT_PASSWORD = 'jukUFoJoVVar3wCvGgSCHjuBDvMENqM9ERevEev1d61Zt3MrfZ';
+const String CLIENT_ID = 'demo';
+const String CLIENT_PASSWORD =
+    'SRbaqf9kwpjOxAYtE9tVFVBWAh2waeF7TX4TEcZ4jVFKbm1uaD';
 const String BASE_API_URL = 'https://api.sandbox.mangopay.com';
 const String SECURE_RETURN_URL = 'https://google.com';
 
@@ -17,11 +19,8 @@ const String masterCardLogo =
     'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/800px-Mastercard-logo.svg.png';
 
 class PaymentPage extends StatefulWidget {
-  final num investmentAmount;
-
   PaymentPage({
     Key key,
-    this.investmentAmount,
   }) : super(key: key);
 
   @override
@@ -31,7 +30,9 @@ class PaymentPage extends StatefulWidget {
 class _PaymentPageState extends State<PaymentPage> {
   final _formKey = GlobalKey<FormState>();
 
-  // String _cardHoldersName;
+  num _amount;
+  num _fees;
+
   String _cardNumber;
   String _cardCVV;
   String _expiryMonth;
@@ -55,7 +56,7 @@ class _PaymentPageState extends State<PaymentPage> {
               children: [
                 _buildCardUI(),
                 buildRoundButton(
-                  title: 'Invest',
+                  title: 'Pay',
                   onTap: () {
                     EasyLoading.show()
                         .then((_) => _proceedWithInvestment(context))
@@ -73,108 +74,157 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget _buildCardUI() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FormInputField(
-            title: 'Card Number',
-            primaryPadding: EdgeInsets.zero,
-            secondaryPadding: EdgeInsets.zero,
-            hintColor: Colors.grey,
-            borderColor: Colors.grey.shade700,
-            validator: cardNumberValidator,
-            inputType: TextInputType.number,
-            enforceUnderLineBorder: false,
-            inputAction: TextInputAction.next,
-            suffixIcon: _getCardIcon(),
-            onChange: (value) {
-              _cardNumber = value;
-              setState(() {});
-            },
-          ),
-          SizedBox(height: 16.0),
-          Container(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Flexible(
-                  flex: 1,
-                  child: FormInputField(
-                    title: 'MM',
-                    primaryPadding: EdgeInsets.zero,
-                    secondaryPadding: EdgeInsets.zero,
-                    hintColor: Colors.grey,
-                    borderColor: Colors.grey.shade700,
-                    inputType: TextInputType.number,
-                    validator: notEmptyValidator,
-                    enforceUnderLineBorder: false,
-                    inputAction: TextInputAction.next,
-                    onChange: (value) {
-                      _expiryMonth = value;
-                      setState(() {});
-                    },
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: FormInputField(
+                      title: 'Amount to pay [GBP]',
+                      primaryPadding: EdgeInsets.zero,
+                      secondaryPadding: EdgeInsets.zero,
+                      hintColor: Colors.grey,
+                      borderColor: Colors.grey.shade700,
+                      inputType: TextInputType.number,
+                      validator: notEmptyValidator,
+                      enforceUnderLineBorder: false,
+                      inputAction: TextInputAction.next,
+                      onChange: (value) {
+                        _amount = Validator.parseNum(value);
+                        setState(() {});
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.0),
-                Flexible(
-                  flex: 1,
-                  child: FormInputField(
-                    title: 'YYYY',
-                    primaryPadding: EdgeInsets.zero,
-                    secondaryPadding: EdgeInsets.zero,
-                    hintColor: Colors.grey,
-                    borderColor: Colors.grey.shade700,
-                    inputType: TextInputType.number,
-                    validator: notEmptyValidator,
-                    inputAction: TextInputAction.next,
-                    enforceUnderLineBorder: false,
-                    onChange: (value) {
-                      _expiryYear = value;
-                      setState(() {});
-                    },
+                  SizedBox(width: 12.0),
+                  Flexible(
+                    flex: 1,
+                    child: FormInputField(
+                      title: 'Fees [GBP]',
+                      primaryPadding: EdgeInsets.zero,
+                      secondaryPadding: EdgeInsets.zero,
+                      hintColor: Colors.grey,
+                      borderColor: Colors.grey.shade700,
+                      inputType: TextInputType.number,
+                      inputAction: TextInputAction.next,
+                      enforceUnderLineBorder: false,
+                      onChange: (value) {
+                        if (isEmpty(value)) return;
+
+                        _fees = Validator.parseNum(value);
+                        setState(() {});
+                      },
+                    ),
                   ),
-                ),
-                SizedBox(width: 12.0),
-                Flexible(
-                  flex: 2,
-                  child: FormInputField(
-                    title: 'CVV',
-                    primaryPadding: EdgeInsets.zero,
-                    secondaryPadding: EdgeInsets.zero,
-                    hintColor: Colors.grey,
-                    borderColor: Colors.grey.shade700,
-                    inputType: TextInputType.number,
-                    validator: cardCVVNumberValidator,
-                    inputAction: TextInputAction.next,
-                    enforceUnderLineBorder: false,
-                    onChange: (value) {
-                      _cardCVV = value;
-                      setState(() {});
-                    },
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 16.0),
-          FormInputField(
-            title: 'Name on Card',
-            primaryPadding: EdgeInsets.zero,
-            secondaryPadding: EdgeInsets.zero,
-            hintColor: Colors.grey,
-            borderColor: Colors.grey.shade700,
-            validator: notEmptyValidator,
-            enforceUnderLineBorder: false,
-            inputAction: TextInputAction.go,
-            onChange: (value) {
-              // _cardHoldersName = value;
-              setState(() {});
-            },
-          ),
-        ],
+            SizedBox(height: 32),
+            FormInputField(
+              title: 'Card Number',
+              primaryPadding: EdgeInsets.zero,
+              secondaryPadding: EdgeInsets.zero,
+              hintColor: Colors.grey,
+              borderColor: Colors.grey.shade700,
+              validator: cardNumberValidator,
+              inputType: TextInputType.number,
+              enforceUnderLineBorder: false,
+              inputAction: TextInputAction.next,
+              suffixIcon: _getCardIcon(),
+              onChange: (value) {
+                _cardNumber = value;
+                setState(() {});
+              },
+            ),
+            SizedBox(height: 16.0),
+            Container(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: FormInputField(
+                      title: 'MM',
+                      primaryPadding: EdgeInsets.zero,
+                      secondaryPadding: EdgeInsets.zero,
+                      hintColor: Colors.grey,
+                      borderColor: Colors.grey.shade700,
+                      inputType: TextInputType.number,
+                      validator: notEmptyValidator,
+                      enforceUnderLineBorder: false,
+                      inputAction: TextInputAction.next,
+                      onChange: (value) {
+                        _expiryMonth = value;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 12.0),
+                  Flexible(
+                    flex: 1,
+                    child: FormInputField(
+                      title: 'YYYY',
+                      primaryPadding: EdgeInsets.zero,
+                      secondaryPadding: EdgeInsets.zero,
+                      hintColor: Colors.grey,
+                      borderColor: Colors.grey.shade700,
+                      inputType: TextInputType.number,
+                      validator: notEmptyValidator,
+                      inputAction: TextInputAction.next,
+                      enforceUnderLineBorder: false,
+                      onChange: (value) {
+                        _expiryYear = value;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 12.0),
+                  Flexible(
+                    flex: 2,
+                    child: FormInputField(
+                      title: 'CVV',
+                      primaryPadding: EdgeInsets.zero,
+                      secondaryPadding: EdgeInsets.zero,
+                      hintColor: Colors.grey,
+                      borderColor: Colors.grey.shade700,
+                      inputType: TextInputType.number,
+                      validator: cardCVVNumberValidator,
+                      inputAction: TextInputAction.next,
+                      enforceUnderLineBorder: false,
+                      onChange: (value) {
+                        _cardCVV = value;
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.0),
+            FormInputField(
+              title: 'Name on Card',
+              primaryPadding: EdgeInsets.zero,
+              secondaryPadding: EdgeInsets.zero,
+              hintColor: Colors.grey,
+              borderColor: Colors.grey.shade700,
+              validator: notEmptyValidator,
+              enforceUnderLineBorder: false,
+              inputAction: TextInputAction.go,
+              onChange: (value) {
+                // _cardHoldersName = value;
+                setState(() {});
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -196,11 +246,13 @@ class _PaymentPageState extends State<PaymentPage> {
     if (isAllValidated) {
       /// save all the values if validation passes
       _formKey.currentState.save();
-      await _processMangoPayDetails(context);
+      await _processMangopayDetails(context).catchError((e, s) {
+        print('$e\n\t$s');
+      });
     }
   }
 
-  Future<void> _processMangoPayDetails(BuildContext context) async {
+  Future<void> _processMangopayDetails(BuildContext context) async {
     final currency = 'GBP';
 
     var mangoPayID;
@@ -210,7 +262,7 @@ class _PaymentPageState extends State<PaymentPage> {
       clientID: CLIENT_ID,
       clientPassword: CLIENT_PASSWORD,
       baseURL: BASE_API_URL,
-      environment: MangoPayEnvironment.SandBox,
+      environment: MangopayEnvironment.SandBox,
     );
 
     print('mangoPayClient:');
@@ -218,23 +270,33 @@ class _PaymentPageState extends State<PaymentPage> {
     print('\n\t${mangoPayClient.clientPassword}');
     print('\n\t${mangoPayClient.environment}');
     print('\n\t${mangoPayClient.apiURL}');
+
     print('User is not registered with the mangopay gateway');
-    mangoPayID = await mangoPayClient
+    print('Registering the user...');
+
+    final mangopayUser = await mangoPayClient
         .registerUser(
             firstName: 'John',
             lastName: 'doe',
             email: 'john.doe@example.com',
             countryOfResidence: 'FR',
             nationality: 'FR',
-            birthdayTimeStamp: DateTime.now().millisecondsSinceEpoch ~/ 1000)
+            birthdayTimeStamp:
+                DateTime.parse('1974-01-04').millisecondsSinceEpoch ~/ 1000)
         .catchError((e, s) {
-      print('_processMangoPayDetails: $e \n$s');
+      print('_processMangopayDetails: $e \n$s');
       return null;
     });
+
+    mangoPayID = mangopayUser.id;
     print('mangoPayID: $mangoPayID');
 
-    // create a mangocard instance from user's input
-    final mangoCard = MangopayCard.fromUserData(
+    if (!Validator.validateID(mangoPayID)) {
+      print('!!!!  invalid user id: $mangoPayID');
+      return;
+    }
+    // create a mangopay card instance from user's input
+    final mangopayCard = MangopayCard.fromUserData(
       cardNumber: _cardNumber,
       cvv: _cardCVV,
       expirationMonth: _expiryMonth,
@@ -243,10 +305,12 @@ class _PaymentPageState extends State<PaymentPage> {
       userID: mangoPayID,
     );
 
-    print('mangoCard: $mangoCard');
-    // Register card, save this registerCardData in the storage along with the mangocard instance
-    final registerCardData =
-        await mangoPayClient.registerCard(mangoPayID, mangoCard);
+    print('mangopayCard: $mangopayCard');
+    // Register card, save this registerCardData in the storage along with the mangopayCard instance
+    final registerCardData = await mangoPayClient.registerCardWithMangopayCard(
+      mangoPayID,
+      mangopayCard,
+    );
 
     print('registerCardData: $registerCardData');
     // check if registration is successful or not
@@ -261,13 +325,18 @@ class _PaymentPageState extends State<PaymentPage> {
 
       print('wallet: $wallet');
       mangoPayWalletID = wallet.id;
+      if (!Validator.validateID(mangoPayWalletID)) {
+        print('!!!! invalid wallet ID: $mangoPayWalletID');
+        return;
+      }
 
       var errorMessage;
       final transactionID = await mangoPayClient
           .directPayinUsingCard(
-        mangopayCard: mangoCard,
-        registerCardData: registerCardData,
-        investment: widget.investmentAmount,
+        currency: currency,
+        cardId: registerCardData.cardId,
+        investment: _amount,
+        fees: _fees ?? 0.0,
         secureModeReturnURL: SECURE_RETURN_URL,
         mangopayUserID: mangoPayID,
         mangopayWalletID: mangoPayWalletID,
@@ -280,7 +349,11 @@ class _PaymentPageState extends State<PaymentPage> {
 
       print('transactionID: $transactionID');
       if (isNotEmpty(transactionID) && transactionID is String) {
-        return transactionID;
+        //deactivate the card
+        mangoPayClient.updateCardActivation(
+          registerCardData.cardId,
+          activation: false,
+        );
       } else {
         throw Exception('Invalid Transaction ID: $transactionID,'
             ' error: $errorMessage');

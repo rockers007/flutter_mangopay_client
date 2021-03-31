@@ -16,6 +16,7 @@ bool isNotEmpty(dynamic data) {
   return !isEmpty(data);
 }
 
+/// Method to convert a simple string to base64 string
 String stringToBase64(String data) {
   return base64.encode(utf8.encode(data));
 }

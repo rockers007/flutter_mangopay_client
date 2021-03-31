@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'common_utils.dart';
 import 'resources.dart';
 
+/// --- Getters for api suffixes --- ///
 String getUsersSuffix() => '/users';
 
 String getCardSuffix(String userID) => '/users/$userID/cards/';
@@ -24,6 +25,8 @@ String getRegisterUserSuffix() => '/users/natural';
 
 String getDirectPayinSuffix() => '/payins/card/direct';
 
+/// --- Api Tags --- ///
+
 abstract class UserTags {
   static const String PersonType = 'PersonType';
   static const String KYCLevel = 'KYCLevel';
@@ -32,14 +35,6 @@ abstract class UserTags {
   static const String Tag = 'Tag';
   static const String CreationDate = 'CreationDate';
 
-  /*{
-"FirstName": "Harshvardhan",
-"LastName": "Joshi",
-"Birthday": 1463496101,
-"Nationality": "GB",
-"CountryOfResidence": "FR",
-"Email": "d3@mo.com"
-}*/
   static const String RequestFirstName = 'FirstName';
   static const String RequestLastName = 'LastName';
   static const String RequestEmail = 'Email';
@@ -136,16 +131,57 @@ abstract class WalletTags {
   static const String CreationDate = 'CreationDate';
 }
 
+/// --- Utility functions --- ///
+
+/// Get Authentication token string for authorization
 String getAuthToken(String clientID, String clientPassword) {
   return 'Basic ${stringToBase64('$clientID:$clientPassword')}';
 }
 
+/// Get authorization headers for mangopay api communications
 Map<String, String> getMangopayHeader(
   String clientID,
   String clientPassword,
 ) {
   final token = getAuthToken(clientID, clientPassword);
   return {'Authorization': token};
+}
+
+/// Append json specific headers in the provided [headerData]
+///
+/// Since the collection is a [Map], this process may overwrite previous
+/// headers
+Map<String, dynamic> appendJSONHeaders(Map<String, dynamic> headerData) {
+  headerData.addAll(getJSONHeaders());
+  return headerData;
+}
+
+/// Append url-form specific headers in the provided [headerData]
+///
+/// Since the collection is a [Map], this process may overwrite previous
+/// headers
+Map<String, dynamic> appendFormHeader(Map<String, dynamic> headerData) {
+  headerData.addAll(getFormHeaders());
+  return headerData;
+}
+
+/// This method is used for providing a map containing the header
+/// values for a json request
+Map<String, String> getJSONHeaders() {
+  final map = <String, String>{
+    // HttpHeaders.acceptHeader: 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json',
+  };
+  return map;
+}
+
+/// This method is used for providing a map containing the header
+/// values for a form url encoded request
+Map<String, String> getFormHeaders() {
+  final map = <String, String>{
+    HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
+  };
+  return map;
 }
 
 /// This method is used to send an HTTP POST request
@@ -178,9 +214,6 @@ Future<String> getDataFromNetwork({
   Function(dynamic) onError,
 }) async {
   assert(isNotEmpty(url), 'URL can not be empty or null!!');
-
-  // final isLive = await isConnectionLive(BASE_API);
-  // assert(isLive, 'Api connection is not live');
 
   //check if request is to be sent as a json request
   if (isJsonRequest) {
@@ -276,35 +309,6 @@ Future<http.Response> executePostRequest(
       onError?.call(error);
     }
   });
-}
-
-Map<String, dynamic> appendJSONHeaders(Map<String, dynamic> headerData) {
-  headerData.addAll(getJSONHeaders());
-  return headerData;
-}
-
-Map<String, dynamic> appendFormHeader(Map<String, dynamic> headerData) {
-  headerData.addAll(getFormHeaders());
-  return headerData;
-}
-
-/// This method is used for providing a map containing the header
-/// values for a json request
-Map<String, String> getJSONHeaders() {
-  final map = <String, String>{
-    // HttpHeaders.acceptHeader: 'application/json',
-    HttpHeaders.contentTypeHeader: 'application/json',
-  };
-  return map;
-}
-
-/// This method is used for providing a map containing the header
-/// values for a form url encoded request
-Map<String, String> getFormHeaders() {
-  final map = <String, String>{
-    HttpHeaders.contentTypeHeader: 'application/x-www-form-urlencoded',
-  };
-  return map;
 }
 
 /// Method to check if the connection is live or not

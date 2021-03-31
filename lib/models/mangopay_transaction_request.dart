@@ -1,9 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mangopay_client.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
 
-part 'mango_pay_transaction_request.g.dart';
+part 'mangopay_transaction_request.g.dart';
 
 enum SecureMode {
   /// lets you ask for an Frictionless payment
@@ -19,6 +18,11 @@ enum SecureMode {
   Force,
 }
 
+/// The model class that represents a collection of data used for posting the card's
+/// data for registration.
+///
+/// Please refer to Mangopay documentation:
+/// https://docs.mangopay.com/endpoints/v2.01/cards#e1042_post-card-info
 @JsonSerializable(explicitToJson: true)
 class MangopayTransactionRequest {
   @JsonKey(name: MangopayTransactionRequestTags.AuthorId)
@@ -63,24 +67,24 @@ class MangopayTransactionRequest {
     String authorId,
     int amount,
     int fees,
-    MangopayCard mangopayCard,
-    MangopayRegisterCardData registerCardData,
+    String cardId,
+    String currency,
     SecureMode secureMode = SecureMode.Default,
     String statementDescriptor,
+    String tag = MANGOPAY_TAG,
   }) =>
       MangopayTransactionRequest(
-        tag: MANGO_PAY_TAG,
+        tag: tag,
         secureModeReturnURL: secureModeReturnURL,
-        // cardID: registerCardData.cardId,
-        cardID: '103838837',
+        cardID: cardId,
         creditedWalletId: creditedWalletId,
         authorId: authorId,
         debitedFunds: MangopayMoney(
-          currency: mangopayCard.currency,
+          currency: currency,
           amount: amount,
         ),
         fees: MangopayMoney(
-          currency: mangopayCard.currency,
+          currency: currency,
           amount: fees,
         ),
         secureMode: secureMode,

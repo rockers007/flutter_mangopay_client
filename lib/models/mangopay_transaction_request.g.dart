@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'mango_pay_transaction_request.dart';
+part of 'mangopay_transaction_request.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

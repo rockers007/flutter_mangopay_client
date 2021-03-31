@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:flutter_mangopay_client_example/src/payment_page.dart';
+
+import 'src/payment_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +21,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: PaymentPage(investmentAmount: 10),
+        body: PaymentPage(),
       ),
     );
   }

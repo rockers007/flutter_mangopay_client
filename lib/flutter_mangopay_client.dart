@@ -1,3 +1,3 @@
-export 'client.dart';
+export 'mangopay_client.dart';
 export 'models/models.dart';
-export 'utils/validators.dart';
+export 'utils/utils.dart' show Validator, isEmpty, isNotEmpty;

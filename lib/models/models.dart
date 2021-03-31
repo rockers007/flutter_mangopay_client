@@ -1,5 +1,5 @@
-export 'mango_pay_card.dart';
-export 'mango_pay_card_register_data.dart';
-export 'mango_pay_transaction_request.dart';
-export 'mango_pay_user.dart';
-export 'mango_pay_wallet.dart';
+export 'mangopay_card.dart';
+export 'mangopay_card_register_data.dart';
+export 'mangopay_transaction_request.dart';
+export 'mangopay_user.dart';
+export 'mangopay_wallet.dart';

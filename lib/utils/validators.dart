@@ -1,6 +1,14 @@
+import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
+
 import '../models/models.dart';
 
+/// This class contains the utility methods for validating
+/// various types of data used & process in mangopay communication.
+///
+/// Methods in this class are supposed to replicate function of a String validator
+/// used in a [TextFormField] or [TextField]
 class Validator {
+  /// A wrapper method to validate mangopay card data
   static String validateCardDataWithCard(MangopayCard cardData) {
     return validateCardData(
         cardType: cardData.cardType,
@@ -9,11 +17,11 @@ class Validator {
         cardNumber: cardData.cardNumber);
   }
 
-  static String validateCardData(
-      {String cardNumber = '',
-      String cardType = '',
-      String cardExpirationDate = '',
-      String cardCvx = ''}) {
+  /// Method that validates the provided card details
+  static String validateCardData({String cardNumber = '',
+    String cardType = '',
+    String cardExpirationDate = '',
+    String cardCvx = ''}) {
     // Validate card number
     var isCardValid = cardNumberValidator(cardNumber);
     if (isCardValid != null) return isCardValid;
@@ -24,28 +32,34 @@ class Validator {
     if (isDateValid != null) return isDateValid;
 
     // Validate card CVx based on card type
-    var isCvvValid = cvvValidator(cardCvx, cardType);
+    var isCvvValid = cvxValidator(cardCvx, cardType);
     if (isCvvValid != null) return isCvvValid;
 
     // The data looks good
     return null;
   }
 
-  static String cvvValidator(String cvv, String cardType) {
+  /// Validator function for cvx values, CVX represents 3 or 4 digit CVV values
+  static String cvxValidator(String cvx, String cardType) {
+    // These cards don't have cvx values, so verify that the cvx is empty string
     if (cardType == "MAESTRO" || cardType == "BCMC") {
+      if (isNotEmpty(cvx)) {
+        return 'No CVX value is allowed for $cardType';
+      }
       return null;
     }
-    cvv = cvv.trim();
+
+    cvx = cvx.trim();
     cardType = cardType.trim();
 
     // CVV is 3 to 4 digits for AMEX cards and 3 digits for all other cards
-    if (validateNumericOnly(cvv) == true) {
-      if (cardType == "AMEX" && (cvv.length == 3 || cvv.length == 4)) {
+    if (validateNumericOnly(cvx) == true) {
+      if (cardType == "AMEX" && (cvx.length == 3 || cvx.length == 4)) {
         return null;
       }
       if ((cardType == "CBVISAMASTERCARD" ||
               cardType == "CB_VISA_MASTERCARD") &&
-          cvv.length == 3) {
+          cvx.length == 3) {
         return null;
       }
     }
@@ -54,8 +68,8 @@ class Validator {
     return 'CVV format is invalid';
   }
 
-  static String expirationDateValidator(
-      String expiryDate, DateTime currentDate) {
+  /// Validator function for expiration date of the card
+  static String expirationDateValidator(String expiryDate, DateTime currentDate) {
     expiryDate = expiryDate.trim();
 
     // Requires 2 digit for month and 2 digits for year
@@ -77,10 +91,11 @@ class Validator {
       }
     }
 
-    // Date does not look correct
+    // Date is not in a recognized
     return 'Expiry format is invalid';
   }
 
+  /// Validator function for Card number
   static String cardNumberValidator(String cardNumber) {
     cardNumber = cardNumber.trim();
 
@@ -98,8 +113,11 @@ class Validator {
     return null;
   }
 
+  /// Validator for a card's number value
+  ///
+  /// Refer to this for understanding the solution implemented here:
+  /// https://stackoverflow.com/questions/12310837/implementation-of-luhn-algorithm
   static bool validateCheckDigit(String cardNumber) {
-    // From https://stackoverflow.com/questions/12310837/implementation-of-luhn-algorithm
     var nCheck = 0;
     var bEven = false;
     var value = cardNumber.replaceAll('/\D/g', "");
@@ -115,17 +133,42 @@ class Validator {
     return (nCheck % 10) == 0;
   }
 
-  static bool validateIDs(String id) {
+  /// A simple validation function to verify if the provided [id] is
+  /// a valid & usable id or not.
+  ///
+  /// A valid id is supposed to be any [id] with only numeric digits, it can be
+  /// of any length but it is not supposed to contain anything else than the numeric
+  /// digits
+  static bool validateID(String id) {
     var numbersOnlyRegEx = RegExp(r'^[0-9]+$');
-    return numbersOnlyRegEx.hasMatch(id);
+    return validateNumericOnly(id);
   }
 
-  static bool validateNumericOnly(String cardNumber) {
+  /// A simple function to validate that the given [sourceData] contains
+  /// only numeric digit
+  static bool validateNumericOnly(String sourceData) {
     var numbersOnlyRegEx = RegExp(r'^[0-9]+$');
-    return numbersOnlyRegEx.hasMatch(cardNumber);
+    return numbersOnlyRegEx.hasMatch(sourceData);
   }
 
+  /// A Simple wrapper method to easily parse a [number] value with provided [radix]
+  ///
+  /// result is an integer value
   static int parseInt(String number, int radix) {
     return int.parse(number, radix: radix);
+  }
+
+  /// A Simple wrapper method to easily parse a [number] value
+  ///
+  /// result is a double value
+  static double parseDouble(String number) {
+    return double.parse(number);
+  }
+
+  /// A Simple wrapper method to easily parse a [number] value
+  ///
+  /// result is an num object which might be an [int] or [double]
+  static num parseNum(String number) {
+    return num.parse(number);
   }
 }
