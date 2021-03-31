@@ -6,8 +6,8 @@ part of 'mangopay_wallet.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Wallet _$WalletFromJson(Map<String, dynamic> json) {
-  return Wallet(
+MangopayWallet _$WalletFromJson(Map<String, dynamic> json) {
+  return MangopayWallet(
     description: json['Description'] as String,
     owners: (json['Owners'] as List)?.map((e) => e as String)?.toList(),
     balance: json['Balance'] == null
@@ -21,7 +21,8 @@ Wallet _$WalletFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$WalletToJson(Wallet instance) => <String, dynamic>{
+Map<String, dynamic> _$WalletToJson(MangopayWallet instance) =>
+    <String, dynamic>{
       'Description': instance.description,
       'Owners': instance.owners,
       'Balance': instance.balance?.toJson(),

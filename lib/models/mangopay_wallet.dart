@@ -10,7 +10,7 @@ part 'mangopay_wallet.g.dart';
 /// Please refer to Mangopay documentation:
 /// https://docs.mangopay.com/endpoints/v2.01/wallets#e20_the-wallet-object
 @JsonSerializable(explicitToJson: true)
-class Wallet {
+class MangopayWallet {
   @JsonKey(name: WalletTags.Description)
   final String description;
   @JsonKey(name: WalletTags.Owners)
@@ -28,7 +28,7 @@ class Wallet {
   @JsonKey(name: WalletTags.CreationDate)
   final int creationDateInMills;
 
-  Wallet(
+  MangopayWallet(
       {this.description,
       this.owners,
       this.balance,
@@ -40,7 +40,8 @@ class Wallet {
 
   Map<String, dynamic> toJson() => _$WalletToJson(this);
 
-  factory Wallet.fromJson(Map<String, dynamic> json) => _$WalletFromJson(json);
+  factory MangopayWallet.fromJson(Map<String, dynamic> json) =>
+      _$WalletFromJson(json);
 
   @override
   String toString() {

@@ -63,7 +63,7 @@ abstract class MangopayCardTags {
 
 abstract class MangopayRegisterCardDataTags {
   static const String RequestRegistrationData = "RegistrationData";
-  static const String RequestCardStatusData = "Active";
+  static const String RequestCardCurrentActivationStatusData = "Active";
 
   static const String CardType = 'CardType';
   static const String Currency = 'Currency';

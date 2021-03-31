@@ -5,8 +5,6 @@ import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
 
 import 'form_input_field.dart';
 
-// const String CLIENT_ID = 'paulcrowdfunding';
-// const String CLIENT_PASSWORD = 'jukUFoJoVVar3wCvGgSCHjuBDvMENqM9ERevEev1d61Zt3MrfZ';
 const String CLIENT_ID = 'demo';
 const String CLIENT_PASSWORD =
     'SRbaqf9kwpjOxAYtE9tVFVBWAh2waeF7TX4TEcZ4jVFKbm1uaD';
@@ -275,7 +273,7 @@ class _PaymentPageState extends State<PaymentPage> {
     print('Registering the user...');
 
     final mangopayUser = await mangoPayClient
-        .registerUser(
+        .registerNaturalUser(
             firstName: 'John',
             lastName: 'doe',
             email: 'john.doe@example.com',
@@ -350,9 +348,9 @@ class _PaymentPageState extends State<PaymentPage> {
       print('transactionID: $transactionID');
       if (isNotEmpty(transactionID) && transactionID is String) {
         //deactivate the card
-        mangoPayClient.updateCardActivation(
+        mangoPayClient.deactivateCard(
           registerCardData.cardId,
-          activation: false,
+          isCurrentlyActivated: false,
         );
       } else {
         throw Exception('Invalid Transaction ID: $transactionID,'
