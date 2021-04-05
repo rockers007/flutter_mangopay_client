@@ -1,5 +1,8 @@
 # flutter_mangopay_client
 
+[![pub package](https://img.shields.io/pub/v/flutter_mangopay_client.svg)](https://pub.dev/packages/flutter_mangopay_client)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 A simple flutter client for Mangopay Payment gateway.
 
 ## Getting Started
@@ -159,8 +162,10 @@ That is it, you should now be able to use the `MangopayClient` without any issue
 ```
 
 ## Issues & Support
+
 - File an issue on the repository, if something is not working as expected.
    - Please Use `[Bug]` or `[Issue]` tags in issue titles.
    - Please follow the issue template used in flutter-sdk's repository, may be we'll integrate that here as well.
+
 - File an issue in the repository, If you have any suggestions and/or feature requests
    - Please Use `[Suggestion]` or `[Request]` tags in issue titles.
