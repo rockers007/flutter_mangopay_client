@@ -97,7 +97,7 @@ That is it, you should now be able to use the `MangopayClient` without any issue
 					.millisecondsSinceEpoch ~/ 1000)
 		);
 ```
-**Note**: birthdate must be in [UNIX timestamp](https://www.epochconverter.com/) format.
+**Note**: birth date must be in [UNIX timestamp](https://www.epochconverter.com/) format.
 
 
 
@@ -129,14 +129,14 @@ That is it, you should now be able to use the `MangopayClient` without any issue
         fees: 6,
         secureModeReturnURL: 'SECURE_RETURN_URL',
         mangopayUserID: 'MangoPayUserID',
-        mangopayWalletID: 'RecepientWalletID',
+        mangopayWalletID: 'RecipientWalletID',
       )
 ```
 **Notes**:
  - Refer to [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) for more details about currency format
  - Card ID can be obtained from already registered cards or recently obtained card registration data
  - SECURE_RETURN_URL should be a valid url, but it can be any valid url, including `https://google.com`
- - RecepientWalletID should be a wallet ID of a valid Mangopay User
+ - RecipientWalletID should be a wallet ID of a valid Mangopay User
 
 #### Deactivate a card
 ```dart
