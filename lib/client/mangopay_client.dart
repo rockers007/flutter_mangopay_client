@@ -597,7 +597,7 @@ class MangopayClient {
     String statementDescriptor,
   }) {
     return MangopayTransactionRequest.fromData(
-        cardId: cardId,
+            cardId: cardId,
             currency: currency,
             secureModeReturnURL: secureModeReturnURL,
             creditedWalletId: mangopayWalletID,

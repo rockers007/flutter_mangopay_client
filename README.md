@@ -7,13 +7,18 @@ A simple flutter client for Mangopay Payment gateway.
 #### Steps to follow for integration of this plugin:
 
  - create a new directory named "dependencies" (without quotes) in your flutter project's root directory
+
  - copy the directory & contents of this plugin to the dependencies directory
+
  - add following in the pubspec.yaml file of your project under `dependencies`:
+
    ```yaml
   flutter_mangopay_client:
     path: ../
    ```
+
  - Note that yaml file depends on indentation/spaces of the content to work properly
+
  - Run `flutter packages get` or `flutter pub get`
 
 That is it, you should now be able to use the `MangopayClient` without any issues.
@@ -133,10 +138,14 @@ That is it, you should now be able to use the `MangopayClient` without any issue
       )
 ```
 **Notes**:
+
  - Refer to [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) for more details about currency format
- - Card ID can be obtained from already registered cards or recently obtained card registration data
- - SECURE_RETURN_URL should be a valid url, but it can be any valid url, including `https://google.com`
- - RecipientWalletID should be a wallet ID of a valid Mangopay User
+
+ - `CardID` can be obtained from already registered cards or recently obtained card registration data
+
+ - `SECURE_RETURN_URL` should be a valid url, but it can be any valid url, including `https://google.com`
+
+ - `RecipientWalletID` should be a wallet ID of a valid Mangopay User
 
 #### Deactivate a card
 ```dart
@@ -149,5 +158,9 @@ That is it, you should now be able to use the `MangopayClient` without any issue
         );
 ```
 
-
 ## Issues & Support
+- File an issue on the repository, if something is not working as expected.
+   - Please Use `[Bug]` or `[Issue]` tags in issue titles.
+   - Please follow the issue template used in flutter-sdk's repository, may be we'll integrate that here as well.
+- File an issue in the repository, If you have any suggestions and/or feature requests
+   - Please Use `[Suggestion]` or `[Request]` tags in issue titles.

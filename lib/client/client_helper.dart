@@ -25,7 +25,6 @@ String getRegisterUserSuffix() => '/users/natural';
 
 String getDirectPayinSuffix() => '/payins/card/direct';
 
-
 /// --- Utility functions --- ///
 
 /// Get Authentication token string for authorization
