@@ -1,6 +1,7 @@
 import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
 
 import '../models/models.dart';
+import 'common_utils.dart';
 
 /// This class contains the utility methods for validating
 /// various types of data used & process in mangopay communication.
@@ -18,10 +19,11 @@ class Validator {
   }
 
   /// Method that validates the provided card details
-  static String validateCardData({String cardNumber = '',
-    String cardType = '',
-    String cardExpirationDate = '',
-    String cardCvx = ''}) {
+  static String validateCardData(
+      {String cardNumber = '',
+      String cardType = '',
+      String cardExpirationDate = '',
+      String cardCvx = ''}) {
     // Validate card number
     var isCardValid = cardNumberValidator(cardNumber);
     if (isCardValid != null) return isCardValid;
@@ -69,7 +71,8 @@ class Validator {
   }
 
   /// Validator function for expiration date of the card
-  static String expirationDateValidator(String expiryDate, DateTime currentDate) {
+  static String expirationDateValidator(
+      String expiryDate, DateTime currentDate) {
     expiryDate = expiryDate.trim();
 
     // Requires 2 digit for month and 2 digits for year
@@ -140,7 +143,6 @@ class Validator {
   /// of any length but it is not supposed to contain anything else than the numeric
   /// digits
   static bool validateID(String id) {
-    var numbersOnlyRegEx = RegExp(r'^[0-9]+$');
     return validateNumericOnly(id);
   }
 

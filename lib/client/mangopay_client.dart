@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'models/models.dart';
-import 'utils/utils.dart';
+import '../models/models.dart';
+import '../utils/utils.dart';
+import 'client_helper.dart';
 
 enum MangopayEnvironment {
   SandBox,
@@ -208,7 +209,7 @@ class MangopayClient {
 
   /// --- Card Specific methods ---///
 
-  /// Method to fetch all cards registered by this client
+  /// Method to fetch all cards registered by user of this client
   Future<List<MangopayCard>> getCards({String userId}) async {
     assert(isNotEmpty(userId),
         'Mangopay client requires userId to fetch card details');
@@ -379,7 +380,8 @@ class MangopayClient {
     String accessKey,
     String cardNumber,
     String cvx,
-    String expirationDate,) {
+    String expirationDate,
+  ) {
     return {
       MangopayRegisterCardTags.PreregistrationData: preregistrationData,
       MangopayRegisterCardTags.AccessKey: accessKey,
@@ -401,13 +403,13 @@ class MangopayClient {
   ///
   /// Refer to this for more details:
   /// https://docs.mangopay.com/endpoints/v2.01/cards#e179_update-a-card-registration
-  Future<MangopayRegisterCardData> _completeRegistration(String id,
-      String registrationData) async {
+  Future<MangopayRegisterCardData> _completeRegistration(
+      String id, String registrationData) async {
     final url = apiURL + getCompleteRegisterCardSuffix(id);
     final headers =
-    appendFormHeader(getMangopayHeader(clientID, clientPassword));
+        appendFormHeader(getMangopayHeader(clientID, clientPassword));
     final parameters =
-    _getParametersForRegistrationCompletion(registrationData);
+        _getParametersForRegistrationCompletion(registrationData);
 
     final json = await fetchDataFromPostRequest<Map<String, dynamic>>(
       url: url,
@@ -529,12 +531,15 @@ class MangopayClient {
   /// Method to perform a transaction from mangopay api
   /// using direct payin method & a registered card
   ///
+  /// Note that the input of [amount] & [fees] is of type [num]
+  /// but for the final transaction, both will be converted to [int].
+  ///
   /// Please refer to following more details on this:
   /// https://docs.mangopay.com/endpoints/v2.01/payins#e278_create-a-card-direct-payin
   Future<String> directPayinUsingCard({
     String mangopayUserID,
     String mangopayWalletID,
-    num investment,
+    num amount,
     num fees = 0.0,
     String cardId,
     String currency,
@@ -549,7 +554,7 @@ class MangopayClient {
       mangopayWalletID: mangopayWalletID,
       cardId: cardId,
       currency: currency,
-      investment: investment,
+      amount: amount,
       fees: fees,
       secureModeReturnURL: secureModeReturnURL,
       statementDescriptor: statementDescriptor,
@@ -586,18 +591,18 @@ class MangopayClient {
     String cardId,
     String currency,
     String secureModeReturnURL,
-    num investment,
+    num amount,
     num fees = 0.0,
     SecureMode secureMode = SecureMode.Default,
     String statementDescriptor,
   }) {
     return MangopayTransactionRequest.fromData(
-            cardId: cardId,
+        cardId: cardId,
             currency: currency,
             secureModeReturnURL: secureModeReturnURL,
             creditedWalletId: mangopayWalletID,
             authorId: mangopayUserID,
-            amount: investment.toInt(),
+            amount: amount.toInt(),
             fees: fees.toInt(),
             secureMode: secureMode,
             statementDescriptor: statementDescriptor)

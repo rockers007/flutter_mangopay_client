@@ -2,16 +2,6 @@
 
 A simple flutter client for Mangopay Payment gateway.
 
-#### Currently supported operations:
- - Fetch all registered cards
- - Fetch all registered users
- - Register a card
- - Register a User [Natural]
- - Create a wallet for registered user
- - Perform DirectPayin transaction using card
- - Deactivate a card
-
-
 ## Getting Started
 
 #### Steps to follow for integration of this plugin:
@@ -28,4 +18,136 @@ A simple flutter client for Mangopay Payment gateway.
 
 That is it, you should now be able to use the `MangopayClient` without any issues.
 
-## Help & Support
+
+#### How to create client instance
+```dart
+    final mangoPayClient = MangopayClient.getInstance(
+	  // [Required]
+      clientID: 'CLIENT_ID',
+	  // [Required]
+      clientPassword: 'CLIENT_PASSWORD',
+	  // [Optional]
+	  baseURL: 'BASE_API_URL',
+	  // [Optional]
+	  // use for testing purpose => MangopayEnvironment.Sandbox
+	  // use for app release => MangopayEnvironment.Production
+      environment: MangopayEnvironment.SandBox,
+	  // [Optional] API version
+	  version: 'v2.01',
+    );
+```
+
+## Features:
+
+#### Fetch all registered users
+```dart
+    final List<MangopayUser> users = await mangoPayClient.getUsers();
+```
+
+#### Fetch all registered cards for a user
+```dart
+/// use the same client ID as the one used for registrations
+    final List<MangopayCard> cards = await mangoPayClient.getCards(
+	  // [Required]
+      userId: 'MANGOPAY_USER_ID',
+    );
+```
+
+#### Register a card
+```dart
+    /// create a mangopay card for registration
+    final mangopayCard = MangopayCard.fromUserData(
+	  // 16 digit card number
+      cardNumber: 'CardNumber',
+      cvv: 'CardCVV',
+	  // Month in MM format
+      expirationMonth: 'ExpiryMonth',
+	  // Year in YY format
+      expirationYear: 'ExpiryYear',
+	  //currency in ISO 4217 format
+      currency: 'Currency',
+      userID: 'MangoPayUserID',
+	  // [Optional]
+	  tag: 'UNIQUE_TAG',
+    );
+
+	/// perform Mangopay card registration
+	final registerCardData = await mangoPayClient
+	.registerCardWithMangopayCard(
+		'MangoPayUserID',
+		mangopayCard,
+	);
+
+
+```
+
+**Note**: Refer to [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) for more details about currency format
+
+#### Register a User [Natural]
+```dart
+	final mangopayUser = await mangoPayClient
+        .registerNaturalUser(
+            firstName: 'John',
+            lastName: 'doe',
+            email: 'john.doe@example.com',
+            countryOfResidence: 'FR',
+            nationality: 'FR',
+            birthdayTimeStamp:
+                (DateTime.parse('1974-01-04')
+					.millisecondsSinceEpoch ~/ 1000)
+		);
+```
+**Note**: birthdate must be in [UNIX timestamp](https://www.epochconverter.com/) format.
+
+
+
+#### Create a wallet for registered user
+```dart
+	final wallet = await mangoPayClient.createUserWallet(
+        userID: 'MangoPayUserID',
+		//currency in ISO 4217 format
+        currency: 'currency',
+        walletDescription: 'Any valid short description',
+		// [Optional]
+		tag: 'UNIQUE_TAG',
+	);
+```
+**Note**: Refer to [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) for more details about currency format
+
+
+#### Perform DirectPayin transaction using card
+```dart
+	final transactionID = await mangoPayClient
+          .directPayinUsingCard(
+		//currency in ISO 4217 format
+        currency: 'currency',
+		// valid registered card ID
+        cardId: 'CardID',
+		// amount type = number (int)
+        amount: 149,
+		// fees type = number (int)
+        fees: 6,
+        secureModeReturnURL: 'SECURE_RETURN_URL',
+        mangopayUserID: 'MangoPayUserID',
+        mangopayWalletID: 'RecepientWalletID',
+      )
+```
+**Notes**:
+ - Refer to [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) for more details about currency format
+ - Card ID can be obtained from already registered cards or recently obtained card registration data
+ - SECURE_RETURN_URL should be a valid url, but it can be any valid url, including `https://google.com`
+ - RecepientWalletID should be a wallet ID of a valid Mangopay User
+
+#### Deactivate a card
+```dart
+	final MangopayCard deactivatedCard = await mangoPayClient
+            .deactivateCard(
+          // valid registered card ID
+          cardId: 'CardID',
+		  // [Optional]
+          isCurrentlyActivated: true,
+        );
+```
+
+
+## Issues & Support
