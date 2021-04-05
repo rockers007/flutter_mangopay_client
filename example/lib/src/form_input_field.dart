@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
+
+import 'utils/utils.dart';
 
 /// This is a custom input field widget which is used
 /// to take input from the user on login page registration page.

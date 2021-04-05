@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_mangopay_client/flutter_mangopay_client.dart';
 
 import 'form_input_field.dart';
+import 'utils/utils.dart';
 
 const String CLIENT_ID = 'demo';
 const String CLIENT_PASSWORD =
@@ -57,10 +58,57 @@ class _PaymentPageState extends State<PaymentPage> {
                   title: 'Pay',
                   onTap: () {
                     EasyLoading.show()
-                        .then((_) => _proceedWithInvestment(context))
+                        .then((_) => _proceedWithPayment(context))
                         .whenComplete(() => EasyLoading.dismiss());
                   },
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRoundButton({
+    String title = 'Continue',
+    Color buttonColor = Colors.blueAccent,
+    Color textColor = Colors.white,
+    VoidCallback onTap,
+    double outerHorizontalPadding,
+    double outerVerticalPadding,
+    double innerHorizontalPadding,
+    double innerVerticalPadding,
+    double radius,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: outerHorizontalPadding ?? 64,
+        vertical: outerVerticalPadding ?? 4,
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(radius ?? 50),
+            color: buttonColor,
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: innerHorizontalPadding ?? 16,
+              vertical: innerVerticalPadding ?? 8,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                )
               ],
             ),
           ),
@@ -239,7 +287,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
   }
 
-  Future<void> _proceedWithInvestment(BuildContext context) async {
+  Future<void> _proceedWithPayment(BuildContext context) async {
     final isAllValidated = _formKey.currentState.validate();
     if (isAllValidated) {
       /// save all the values if validation passes
@@ -252,9 +300,6 @@ class _PaymentPageState extends State<PaymentPage> {
 
   Future<void> _processMangopayDetails(BuildContext context) async {
     final currency = 'GBP';
-
-    var mangoPayID;
-    var mangoPayWalletID;
     // Create mango pay client from the fetched gateway details
     final mangoPayClient = MangopayClient.getInstance(
       clientID: CLIENT_ID,
@@ -271,28 +316,84 @@ class _PaymentPageState extends State<PaymentPage> {
 
     print('User is not registered with the mangopay gateway');
     print('Registering the user...');
+    showToast('Registering the user...');
 
-    final mangopayUser = await mangoPayClient
-        .registerNaturalUser(
-            firstName: 'John',
-            lastName: 'doe',
-            email: 'john.doe@example.com',
-            countryOfResidence: 'FR',
-            nationality: 'FR',
-            birthdayTimeStamp:
-                DateTime.parse('1974-01-04').millisecondsSinceEpoch ~/ 1000)
-        .catchError((e, s) {
-      print('_processMangopayDetails: $e \n$s');
-      return null;
-    });
-
-    mangoPayID = mangopayUser.id;
-    print('mangoPayID: $mangoPayID');
+    final mangoPayID = await _getMangopayUserIDForUser(mangoPayClient);
 
     if (!Validator.validateID(mangoPayID)) {
-      print('!!!!  invalid user id: $mangoPayID');
+      print('!!!! Registration failed: invalid user id: $mangoPayID');
+      showToast('Registration failed: Invalid user id: $mangoPayID');
       return;
     }
+
+    print('Registering the card...');
+    showToast('Registering the card...');
+
+    MangopayRegisterCardData registerCardData =
+        await _registerCardData(currency, mangoPayID, mangoPayClient);
+
+    print('registerCardData: $registerCardData');
+
+    // check if registration is successful or not
+    if (registerCardData != null) {
+      final mangoPayWalletID =
+          await _getUserWalletID(mangoPayClient, mangoPayID, currency);
+      if (!Validator.validateID(mangoPayWalletID)) {
+        print('!!!! Registration failed: invalid wallet ID: $mangoPayWalletID');
+        showToast('Registration failed: Invalid wallet ID: $mangoPayWalletID');
+        return;
+      }
+
+      print('Initiating transaction...');
+      showToast('Initiating transaction...');
+
+      // perform transaction
+      var errorMessage;
+      final transactionID = await mangoPayClient
+          .directPayinUsingCard(
+        currency: currency,
+        cardId: registerCardData.cardId,
+        amount: _amount,
+        fees: _fees ?? 0.0,
+        secureModeReturnURL: SECURE_RETURN_URL,
+        mangopayUserID: mangoPayID,
+        mangopayWalletID: mangoPayWalletID,
+      )
+          .catchError((e) {
+        print(e.toString());
+        errorMessage = e.toString();
+        return null;
+      });
+
+      print('transactionID: $transactionID');
+      if (isNotEmpty(transactionID) && transactionID is String) {
+        showToast('Transaction successful: id: $transactionID');
+        //deactivate the card
+        mangoPayClient.deactivateCard(
+          registerCardData.cardId,
+        );
+      } else {
+        showToast('Invalid Transaction ID: $transactionID,'
+            ' error: $errorMessage');
+      }
+    }
+  }
+
+  /// Method that will create user's wallet, extract wallet ID & return it
+  Future<String> _getUserWalletID(
+      MangopayClient mangoPayClient, mangoPayID, String currency) async {
+    final wallet = await mangoPayClient.createUserWallet(
+        userID: mangoPayID,
+        currency: currency,
+        walletDescription: 'Wallet for $currency');
+
+    print('wallet: $wallet');
+    return wallet.id;
+  }
+
+  /// Method that will create user's card, register card & return registration data
+  Future<MangopayRegisterCardData> _registerCardData(
+      String currency, String mangoPayID, MangopayClient mangoPayClient) async {
     // create a mangopay card instance from user's input
     final mangopayCard = MangopayCard.fromUserData(
       cardNumber: _cardNumber,
@@ -309,100 +410,28 @@ class _PaymentPageState extends State<PaymentPage> {
       mangoPayID,
       mangopayCard,
     );
-
-    print('registerCardData: $registerCardData');
-    // check if registration is successful or not
-    if (registerCardData != null) {
-      // deactivate new card
-      // final data2 = await mangoPayClient.deactivateCard(registerCardData.cardId);
-
-      final wallet = await mangoPayClient.createUserWallet(
-          userID: mangoPayID,
-          currency: currency,
-          walletDescription: 'Wallet for $currency');
-
-      print('wallet: $wallet');
-      mangoPayWalletID = wallet.id;
-      if (!Validator.validateID(mangoPayWalletID)) {
-        print('!!!! invalid wallet ID: $mangoPayWalletID');
-        return;
-      }
-
-      var errorMessage;
-      final transactionID = await mangoPayClient
-          .directPayinUsingCard(
-        currency: currency,
-        cardId: registerCardData.cardId,
-        investment: _amount,
-        fees: _fees ?? 0.0,
-        secureModeReturnURL: SECURE_RETURN_URL,
-        mangopayUserID: mangoPayID,
-        mangopayWalletID: mangoPayWalletID,
-      )
-          .catchError((e) {
-        print(e.toString());
-        errorMessage = e.toString();
-        return null;
-      });
-
-      print('transactionID: $transactionID');
-      if (isNotEmpty(transactionID) && transactionID is String) {
-        //deactivate the card
-        mangoPayClient.deactivateCard(
-          registerCardData.cardId,
-          isCurrentlyActivated: false,
-        );
-      } else {
-        throw Exception('Invalid Transaction ID: $transactionID,'
-            ' error: $errorMessage');
-      }
-    }
+    return registerCardData;
   }
 
-  Widget buildRoundButton({
-    String title = 'Continue',
-    Color buttonColor = Colors.blueAccent,
-    Color textColor = Colors.white,
-    VoidCallback onTap,
-    double outerHorizontalPadding,
-    double outerVerticalPadding,
-    double innerHorizontalPadding,
-    double innerVerticalPadding,
-    double radius,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: outerHorizontalPadding ?? 64,
-        vertical: outerVerticalPadding ?? 4,
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(radius ?? 50),
-            color: buttonColor,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: innerHorizontalPadding ?? 16,
-              vertical: innerVerticalPadding ?? 8,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  /// Method to create user with mangopay & return mangopay user ID
+  Future<String> _getMangopayUserIDForUser(
+      MangopayClient mangoPayClient) async {
+    final mangopayUser = await mangoPayClient
+        .registerNaturalUser(
+            firstName: 'John',
+            lastName: 'doe',
+            email: 'john.doe@example.com',
+            countryOfResidence: 'FR',
+            nationality: 'FR',
+            birthdayTimeStamp:
+                DateTime.parse('1974-01-04').millisecondsSinceEpoch ~/ 1000)
+        .catchError((e, s) {
+      print('_processMangopayDetails: $e \n$s');
+      return null;
+    });
+
+    final mangoPayID = mangopayUser.id;
+    print('mangoPayID: $mangoPayID');
+    return mangoPayID;
   }
 }
